@@ -94,7 +94,7 @@ def seu_login(username: str, password: str):
         if res is not None:
             if res['uxid'] != username:
                 raise Exception('返回数据异常')
-            print('认证成功，用户姓名：', res['username'])
+            print('认证成功')  # 使用 GitHub Actions 时，不应输出用户信息，作出修改
         return session
     except Exception as e:
         print('登陆失败，错误信息：', e)
