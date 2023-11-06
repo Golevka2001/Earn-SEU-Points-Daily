@@ -50,13 +50,30 @@ def query_seu_points(username: str,
             if not session:
                 raise Exception('移动端身份认证平台登录失败')
         # 查询东豆余额
-        url = (
-            'http://apoint.seu.edu.cn/_web/_customizes/seu/point/api/findUserPoint.rst?'
-            '_p=YXM9MiZwPTEmbT1OJg__'
-            '&act=1'
-            f'&loginName={username}')
-
-        res = session.get(url)
+        # Headers为非必须，但在使用GitHub Actions加上更好
+        headers = {
+            'Accept-Encoding':
+            'gzip,deflate',
+            'Connection':
+            'Keep-Alive',
+            'Content-Type':
+            'application/x-www-form-urlencoded; charset=UTF-8',
+            'Cookie2':
+            '$Version=1',
+            'Host':
+            'apoint.seu.edu.cn',
+            'User-Agent':
+            'Mozilla/5.0 (Linux; Android 13; Pixel 5 Build/TQ3A.230605.012; wv) '
+            'AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/113.0.5672.131 Safari/537.36 iPortal/41',
+        }
+        session.headers.update(headers)
+        url = 'http://apoint.seu.edu.cn/_web/_customizes/seu/point/api/findUserPoint.rst'
+        data = {
+            '_p': 'YXM9MiZwPTEmbT1OJg__',
+            'act': '1',
+            'loginName': username,
+        }
+        res = session.post(url, data=data)
         if res.status_code != 200:
             raise Exception(f'[{res.status_code}, {res.reason}]')
 
