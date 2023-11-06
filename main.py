@@ -50,22 +50,19 @@ def query_seu_points(username: str,
             if not session:
                 raise Exception('移动端身份认证平台登录失败')
         # 查询东豆余额
-        # Headers为非必须，但在使用GitHub Actions加上更好
+        # Headers为非必须，但在使用GitHub Actions时加上更好
         headers = {
-            'Accept-Encoding':
-            'gzip,deflate',
             'Connection':
             'Keep-Alive',
             'Content-Type':
             'application/x-www-form-urlencoded; charset=UTF-8',
             'Cookie2':
             '$Version=1',
-            'Host':
-            'apoint.seu.edu.cn',
             'User-Agent':
             'Mozilla/5.0 (Linux; Android 13; Pixel 5 Build/TQ3A.230605.012; wv) '
             'AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/113.0.5672.131 Safari/537.36 iPortal/41',
         }
+        session.headers.clear()
         session.headers.update(headers)
         url = 'http://apoint.seu.edu.cn/_web/_customizes/seu/point/api/findUserPoint.rst'
         data = {
@@ -110,20 +107,17 @@ def earn_seu_points(username: str,
         # 触发东豆奖励
         # Headers仍为非必须
         headers = {
-            'Accept-Encoding':
-            'gzip,deflate',
             'Connection':
             'Keep-Alive',
             'Content-Type':
             'application/x-www-form-urlencoded; charset=UTF-8',
             'Cookie2':
             '$Version=1',
-            'Host':
-            'apoint.seu.edu.cn',
             'User-Agent':
             'Mozilla/5.0 (Linux; Android 13; Pixel 5 Build/TQ3A.230605.012; wv) '
             'AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/113.0.5672.131 Safari/537.36 iPortal/41',
         }
+        session.headers.clear()
         session.headers.update(headers)
         url = 'http://apoint.seu.edu.cn/_web/_customizes/seu/point/api/addPoint.rst?'
         data = {
@@ -140,10 +134,10 @@ def earn_seu_points(username: str,
         if res.status_code != 200:
             raise Exception(f'[{res.status_code}, {res.reason}]')
 
-        print('触发东豆奖励成功，返回信息：', res.json())
+        print(f'触发东豆奖励{type_id}成功，返回信息：', res.json())
         return session, (res.json()['errorMsg'] != '')
     except Exception as e:
-        print('触发东豆奖励失败，错误信息：', e)
+        print(f'触发东豆奖励{type_id}失败，错误信息：', e)
         return None, False
 
 
@@ -151,6 +145,8 @@ if __name__ == "__main__":
     # 使用 GitHub Actions 时，需要在 Secrets 中设置 USERNAME 和 PASSWORD
     username = os.environ['USERNAME']
     password = os.environ['PASSWORD']
+    MAX_LOGIN_RETRY_TIMES = 5  # 登录失败最大重试次数
+    MAX_REQUEST_TIMES = 10  # 每种奖励类型最大请求次数
 
     # 东豆奖励类型
     # 1-登录
@@ -160,14 +156,13 @@ if __name__ == "__main__":
     bonus_type_list = [1, 2, 3, 5]
 
     # 登录移动端身份认证平台
-    max_retry_times = 5
-    for i in range(max_retry_times):
+    for i in range(MAX_LOGIN_RETRY_TIMES):
         session = seu_login(username, password)
         if session:
             break
         else:
             print('登录失败，正在重试...')
-            if i == max_retry_times - 1:
+            if i == MAX_LOGIN_RETRY_TIMES - 1:
                 print('登录失败次数过多，程序退出')
                 exit(1)
             sleep(3)
@@ -178,9 +173,14 @@ if __name__ == "__main__":
     # 定义多线程函数
     def thread_func(username, password, session, bonus_type):
         limit_reached = False
+        req_cnt = 0  # 记录已发送的请求次数
         while not limit_reached:
+            if req_cnt >= MAX_REQUEST_TIMES:
+                limit_reached = True
+                break
             session, limit_reached = earn_seu_points(username, password,
                                                      bonus_type, session)
+            req_cnt += 1
         print(f'奖励类型{bonus_type}已达上限')
 
     # 多线程触发东豆奖励
