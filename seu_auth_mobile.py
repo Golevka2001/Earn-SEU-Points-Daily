@@ -60,14 +60,18 @@ def seu_login(username: str, password: str):
     try:
         session = requests.Session()
         # Headers有没有都行
-        # headers = {
-        #     'Connection': 'Keep-Alive',
-        #     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        #     'Host': 'mobile4.seu.edu.cn',
-        #     'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 5 Build/TQ3A.230605.012; wv) AppleWebKit/537.36 (KHTML, like Gecko) '
-        #                   'Version/4.0 Chrome/113.0.5672.131 Mobile Safari/537.36 iPortal/41',
-        # }
-        # session.headers.update(headers)
+        headers = {
+            'Connection':
+            'Keep-Alive',
+            'Content-Type':
+            'application/x-www-form-urlencoded; charset=UTF-8',
+            'Host':
+            'mobile4.seu.edu.cn',
+            'User-Agent':
+            'Mozilla/5.0 (Linux; Android 13; Pixel 5 Build/TQ3A.230605.012; wv) AppleWebKit/537.36 (KHTML, like Gecko) '
+            'Version/4.0 Chrome/113.0.5672.131 Mobile Safari/537.36 iPortal/41',
+        }
+        session.headers.update(headers)
         url = 'http://mobile4.seu.edu.cn/_ids_mobile/login18_9'
         login_data = {
             'apnsKey': '',

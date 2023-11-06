@@ -143,13 +143,16 @@ if __name__ == "__main__":
     bonus_type_list = [1, 2, 3, 5]
 
     # 登录移动端身份认证平台
-    login_flag = False
-    while not login_flag:
+    max_retry_times = 5
+    for i in range(max_retry_times):
         session = seu_login(username, password)
         if session:
-            login_flag = True
+            break
         else:
             print('登录失败，正在重试...')
+            if i == max_retry_times - 1:
+                print('登录失败次数过多，程序退出')
+                exit(1)
             sleep(3)
 
     # 查询东豆余额
