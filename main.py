@@ -159,8 +159,8 @@ if __name__ == "__main__":
     def thread_func(username, password, session, bonus_type):
         limit_reached = False
         while not limit_reached:
-            session, limit_reached = add_seu_point(username, password,
-                                                   bonus_type, session)
+            session, limit_reached = earn_seu_points(username, password,
+                                                     bonus_type, session)
         print(f'奖励类型{bonus_type}已达上限')
 
     # 多线程触发东豆奖励
