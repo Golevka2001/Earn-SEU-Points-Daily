@@ -22,6 +22,7 @@ License: GPL-3.0 License
 
 import os
 import threading
+from random import randint
 from time import sleep
 
 import requests
@@ -178,6 +179,8 @@ if __name__ == "__main__":
             if req_cnt >= MAX_REQUEST_TIMES:
                 limit_reached = True
                 break
+            # 随机 sleep 1-5 秒，较密集的请求后端似乎会忽略，但同样会计入奖励上限
+            sleep(randint(1, 5))
             session, limit_reached = earn_seu_points(username, password,
                                                      bonus_type, session)
             req_cnt += 1
